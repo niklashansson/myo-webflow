@@ -10,7 +10,7 @@ const PRODUCTION = process.env.NODE_ENV === 'production';
 const ENTRY_POINTS = [
   'src/index.ts',
   'src/features/swiper/index.ts',
-  'src/features/memberstack/index.ts',
+  'src/features/memberstack/medlemskap.ts',
 ];
 
 // Config dev serving
