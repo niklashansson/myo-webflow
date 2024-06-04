@@ -12,6 +12,7 @@ const ENTRY_POINTS = [
   'src/features/swiper/index.ts',
   'src/features/memberstack/medlemskap.ts',
   'src/features/dialog/index.ts',
+  'src/features/instructions/index.ts',
 ];
 
 // Config dev serving

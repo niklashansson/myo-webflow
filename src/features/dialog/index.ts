@@ -1,48 +1,26 @@
 window.Webflow ||= [];
 window.Webflow.push(() => {
+  setupDialog();
+});
+
+export function setupDialog() {
   const dialog = document.querySelector('dialog.dialog') as HTMLDialogElement;
   if (!dialog) return;
 
   const closeBtns = Array.from(dialog.querySelectorAll('[dialog-element="close"]'));
 
-  const instances = Array.from(dialog.querySelectorAll('[dialog-instance]'));
-  if (!instances.length) return;
+  const instanceElements = Array.from(
+    dialog.querySelectorAll('[dialog-instance]')
+  ) as HTMLElement[];
+  if (!instanceElements.length) return;
 
-  instances.map((instanceEl) => {
-    const id = instanceEl.getAttribute('id');
-    if (!id) return;
+  const instances = instanceElements.map((instanceEl) => setupInstance(instanceEl, dialog));
 
-    const triggers: HTMLLinkElement[] = Array.from(document.querySelectorAll(`a[href="#${id}"]`));
-    if (!triggers.length) return;
-
-    const index = Number(instanceEl.getAttribute('dialog-instance'));
-    if (!index) return;
-
-    const ariaLabel = instanceEl.getAttribute('dialog-aria');
-
-    triggers.forEach((trigger) => {
-      trigger.href = '';
-
-      trigger.addEventListener('keydown', (e) => {
-        e.preventDefault();
-        if (e.key === 'Enter' || e.key === ' ') openDialog(index, dialog);
-      });
-      trigger.addEventListener('click', (e) => {
-        e.preventDefault();
-        openDialog(index, dialog);
-      });
-    });
-
-    const instance = {
-      id,
-      dialog,
-      triggers,
-      index,
-      ariaLabel,
-    };
-
-    return instance;
-  });
+  // @ts-expect-error unnamed
+  window.customDialog = {
+    element: dialog,
+    instances,
+  };
 
   closeBtns.forEach((btn) => {
     btn.setAttribute('role', 'button');
@@ -64,7 +42,46 @@ window.Webflow.push(() => {
   dialog.addEventListener('close', () => {
     closeDialog(dialog);
   });
-});
+}
+
+function setupInstance(instanceEl: HTMLElement, dialog: HTMLDialogElement) {
+  const id = instanceEl.getAttribute('id');
+  if (!id) return;
+
+  const triggers: HTMLLinkElement[] = Array.from(document.querySelectorAll(`a[href="#${id}"]`));
+  if (!triggers.length) return;
+
+  const index = Number(instanceEl.getAttribute('dialog-instance'));
+  if (!index) return;
+
+  const ariaLabel = instanceEl.getAttribute('dialog-aria');
+
+  triggers.forEach((trigger) => setupTrigger(trigger, index, dialog));
+
+  const instance = {
+    id,
+    dialog,
+    triggers,
+    index,
+    ariaLabel,
+    element: instanceEl,
+  };
+
+  return instance;
+}
+
+function setupTrigger(element: HTMLLinkElement, instanceIndex: number, dialog: HTMLDialogElement) {
+  element.href = '';
+
+  element.addEventListener('keydown', (e) => {
+    e.preventDefault();
+    if (e.key === 'Enter' || e.key === ' ') openDialog(instanceIndex, dialog);
+  });
+  element.addEventListener('click', (e) => {
+    e.preventDefault();
+    openDialog(instanceIndex, dialog);
+  });
+}
 
 function openDialog(instanceIndex: number, dialog: HTMLDialogElement) {
   dialog.setAttribute('dialog-active', `${instanceIndex}`);
