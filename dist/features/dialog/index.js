@@ -1,1 +1,84 @@
-"use strict";(()=>{window.Webflow||(window.Webflow=[]);window.Webflow.push(()=>{u()});function u(){let e=document.querySelector("dialog.dialog");if(!e)return;let i=Array.from(e.querySelectorAll('[dialog-element="close"]')),o=Array.from(e.querySelectorAll("[dialog-instance]"));if(!o.length)return;let n=o.map(t=>g(t,e));window.customDialog={element:e,instances:n},i.forEach(t=>{t.setAttribute("role","button"),t.setAttribute("tabindex","0"),t.addEventListener("click",()=>l(e))}),e.addEventListener("click",t=>{let r=e.getBoundingClientRect();r.top<=t.clientY&&t.clientY<=r.top+r.height&&r.left<=t.clientX&&t.clientX<=r.left+r.width||l(e)}),e.addEventListener("close",()=>{l(e)})}function g(e,i){let o=e.getAttribute("id");if(!o)return;let n=Array.from(document.querySelectorAll(`a[href="#${o}"]`));if(!n.length)return;let t=Number(e.getAttribute("dialog-instance"));if(!t)return;let r=e.getAttribute("dialog-aria");return n.forEach(s=>d(s,t,i)),{id:o,dialog:i,triggers:n,index:t,ariaLabel:r,element:e}}function d(e,i,o){e.href="",e.addEventListener("keydown",n=>{n.preventDefault(),(n.key==="Enter"||n.key===" ")&&c(i,o)}),e.addEventListener("click",n=>{n.preventDefault(),c(i,o)})}function c(e,i){i.setAttribute("dialog-active",`${e}`),i.showModal()}function l(e){e.setAttribute("dialog-active",""),e.close()}})();
+"use strict";
+(() => {
+  // bin/live-reload.js
+  new EventSource(`${"http://localhost:3000"}/esbuild`).addEventListener("change", () => location.reload());
+
+  // src/features/dialog/index.ts
+  window.Webflow ||= [];
+  window.Webflow.push(() => {
+    setupDialog();
+  });
+  function setupDialog() {
+    const dialog = document.querySelector("dialog.dialog");
+    if (!dialog)
+      return;
+    const closeBtns = Array.from(dialog.querySelectorAll('[dialog-element="close"]'));
+    const instanceElements = Array.from(
+      dialog.querySelectorAll("[dialog-instance]")
+    );
+    if (!instanceElements.length)
+      return;
+    const instances = instanceElements.map((instanceEl) => setupInstance(instanceEl, dialog));
+    window.customDialog = {
+      element: dialog,
+      instances
+    };
+    closeBtns.forEach((btn) => {
+      btn.setAttribute("role", "button");
+      btn.setAttribute("tabindex", "0");
+      btn.addEventListener("click", () => closeDialog(dialog));
+    });
+    dialog.addEventListener("click", (e) => {
+      const rect = dialog.getBoundingClientRect();
+      const isInDialog = rect.top <= e.clientY && e.clientY <= rect.top + rect.height && rect.left <= e.clientX && e.clientX <= rect.left + rect.width;
+      if (!isInDialog)
+        closeDialog(dialog);
+    });
+    dialog.addEventListener("close", () => {
+      closeDialog(dialog);
+    });
+  }
+  function setupInstance(instanceEl, dialog) {
+    const id = instanceEl.getAttribute("id");
+    if (!id)
+      return;
+    const triggers = Array.from(document.querySelectorAll(`a[href="#${id}"]`));
+    if (!triggers.length)
+      return;
+    const index = Number(instanceEl.getAttribute("dialog-instance"));
+    if (!index)
+      return;
+    const ariaLabel = instanceEl.getAttribute("dialog-aria");
+    triggers.forEach((trigger) => setupTrigger(trigger, index, dialog));
+    const instance = {
+      id,
+      dialog,
+      triggers,
+      index,
+      ariaLabel,
+      element: instanceEl
+    };
+    return instance;
+  }
+  function setupTrigger(element, instanceIndex, dialog) {
+    element.href = "";
+    element.addEventListener("keydown", (e) => {
+      e.preventDefault();
+      if (e.key === "Enter" || e.key === " ")
+        openDialog(instanceIndex, dialog);
+    });
+    element.addEventListener("click", (e) => {
+      e.preventDefault();
+      openDialog(instanceIndex, dialog);
+    });
+  }
+  function openDialog(instanceIndex, dialog) {
+    dialog.setAttribute("dialog-active", `${instanceIndex}`);
+    dialog.showModal();
+  }
+  function closeDialog(dialog) {
+    dialog.setAttribute("dialog-active", "");
+    dialog.close();
+  }
+})();
+//# sourceMappingURL=index.js.map

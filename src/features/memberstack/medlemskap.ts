@@ -1,28 +1,65 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 window.Webflow ||= [];
-window.Webflow.push(() => {
+window.Webflow.push(async () => {
   // @ts-expect-error "memberstack"
   const memberstack = window.$memberstackDom;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  memberstack.getCurrentMember().then((member: any) => {
-    if (member.data) {
-      const activePlanId = member.data.planConnections[0].payment.priceId;
-      if (!activePlanId) return;
 
-      const planBtns = document.querySelectorAll('.membership_item a');
-      planBtns.forEach((btn) => {
-        const id = btn.getAttribute('data-ms-price:update');
+  const { data: member } = await memberstack.getCurrentMember();
 
-        if (id === activePlanId) {
-          btn.classList.add('is-active-plan');
-          btn.textContent = 'Din nuvarande plan';
-          btn.removeAttribute('data-ms-price:update');
+  if (!member) return;
 
-          const container = btn.closest('.membership_item');
+  const { planConnections } = member;
 
-          if (!container) return;
-          container.classList.add('is-current-plan');
-        }
-      });
+  console.log(planConnections);
+
+  planConnections.forEach((plan: any) => {
+    const {
+      planId,
+      active,
+      payment: { cancelAtDate, nextBillingDate },
+    } = plan;
+
+    // plan not active
+    if (!active) return;
+
+    // plan active
+    const planEl = document.querySelector(`[memberstack-plan-id=${planId}]`);
+    if (!planEl) return;
+
+    // plan cancelled
+    if (cancelAtDate) {
+      planEl.classList.add('is-cancelled-plan');
+
+      const cancelAtDateEl = planEl.querySelector('[memberstack-plan-element=cancel-date]');
+      if (!cancelAtDateEl) return;
+
+      const cancelAtMs = cancelAtDate * 1000;
+      const cancelAtDateFormatted = formatDate(cancelAtMs);
+
+      cancelAtDateEl.textContent = cancelAtDateFormatted;
+    }
+
+    // active
+    if (nextBillingDate && !cancelAtDate) {
+      planEl.classList.add('is-current-plan');
+
+      const nextBillingEl = planEl.querySelector('[memberstack-plan-element=next-billing-date]');
+      if (!nextBillingEl) return;
+
+      const nextBillingDateMs = nextBillingDate * 1000;
+      const nextBillingDateFormatted = formatDate(nextBillingDateMs);
+
+      nextBillingEl.textContent = nextBillingDateFormatted;
     }
   });
 });
+
+function formatDate(dateMs: number) {
+  const date = new Date(dateMs);
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
