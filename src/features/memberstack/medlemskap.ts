@@ -10,8 +10,6 @@ window.Webflow.push(async () => {
 
   const { planConnections } = member;
 
-  console.log(planConnections);
-
   planConnections.forEach((plan: any) => {
     const {
       planId,
