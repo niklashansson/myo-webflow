@@ -1,0 +1,28 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+window.Webflow ||= [];
+window.Webflow.push(async () => {
+  const planTitleEl = document.querySelector('[data-element="plan-title"]');
+  if (!planTitleEl) return;
+
+  const plans = [
+    { planId: 'pln_myo-membership-monthly-c6da07cx', title: 'MYO Medlemskap - Månadsvis' },
+    { planId: 'pln_myo-membership-yearly-a66l0ayp', title: 'MYO Medlemskap - Årsvis' },
+  ];
+
+  // @ts-expect-error "memberstack"
+  const memberstack = window.$memberstackDom;
+
+  const { data: member } = await memberstack.getCurrentMember();
+  if (!member) return;
+
+  const { planConnections } = member;
+
+  if (!planConnections.length) return;
+
+  planConnections.forEach((planConnection: { planId: string }) => {
+    const plan = plans.find((p) => p.planId === planConnection.planId);
+    if (!plan) return;
+
+    planTitleEl.textContent = plan.title;
+  });
+});
