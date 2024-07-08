@@ -1,3 +1,5 @@
+import plans from '$utils/plans.json';
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 window.Webflow ||= [];
 window.Webflow.push(async () => {
@@ -11,6 +13,8 @@ window.Webflow.push(async () => {
   const { planConnections } = member;
 
   planConnections.forEach((plan: any) => {
+    if (plan.type === 'FREE') handleFreePlans(plan);
+
     const {
       planId,
       active,
@@ -50,6 +54,19 @@ window.Webflow.push(async () => {
       nextBillingEl.textContent = nextBillingDateFormatted;
     }
   });
+
+  function handleFreePlans(plan: any) {
+    const textEl = document.querySelector('.membership_free-plans_text');
+    if (!textEl) return;
+
+    if (plan.planId === plans.testPlan.id) {
+      textEl.textContent = plans.testPlan.membershipPageBannerText;
+    }
+
+    if (plan.planId === plans.trialPlan.id) {
+      textEl.textContent = plans.trialPlan.membershipPageBannerText;
+    }
+  }
 });
 
 function formatDate(dateMs: number) {

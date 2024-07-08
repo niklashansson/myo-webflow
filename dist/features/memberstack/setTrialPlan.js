@@ -1,0 +1,1 @@
+"use strict";(()=>{window.Webflow||(window.Webflow=[]);window.Webflow.push(async()=>{let t=window.$memberstackDom;(async function(){let e=await t.getMemberJSON();if(e.data||(e.data={}),!e.data["free-trial-date"]){let a=new Date,n=new Date(a.getTime()+168*60*60*1e3);e.data["free-trial-date"]=n.toISOString(),await t.updateMemberJSON({json:e.data})}})()});})();
