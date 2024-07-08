@@ -2,7 +2,7 @@
 window.Webflow ||= [];
 window.Webflow.push(async () => {
   const planTitleEl = document.querySelector('[data-element="plan-title"]');
-  if (!planTitleEl) return;
+  if (!planTitleEl) redirect();
 
   const plans = [
     { planId: 'pln_myo-membership-monthly-c6da07cx', title: 'MYO Medlemskap - Månadsvis' },
@@ -13,16 +13,21 @@ window.Webflow.push(async () => {
   const memberstack = window.$memberstackDom;
 
   const { data: member } = await memberstack.getCurrentMember();
-  if (!member) return;
+  if (!member) redirect();
 
   const { planConnections } = member;
-
-  if (!planConnections.length) return;
+  if (!planConnections.length) redirect();
 
   planConnections.forEach((planConnection: { planId: string }) => {
     const plan = plans.find((p) => p.planId === planConnection.planId);
-    if (!plan) return;
+    if (!plan) redirect();
 
-    planTitleEl.textContent = plan.title;
+    if (planTitleEl && plan?.title) {
+      planTitleEl.textContent = plan.title;
+    }
   });
 });
+
+function redirect() {
+  window.location.replace('/bli-medlem');
+}
