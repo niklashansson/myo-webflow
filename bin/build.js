@@ -16,6 +16,7 @@ const ENTRY_POINTS = [
   'src/features/memberstack/global.ts',
   'src/features/dialog/index.ts',
   'src/features/instructions/index.ts',
+  'src/analytics/subscription.ts',
 ];
 
 // Config dev serving

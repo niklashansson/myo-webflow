@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 window.Webflow ||= [];
 window.Webflow.push(async () => {
   const planTitleEl = document.querySelector('[data-element="plan-title"]');
