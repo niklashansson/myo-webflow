@@ -1,15 +1,26 @@
 import Swiper from 'swiper';
+import { Navigation } from 'swiper/modules';
 
 window.Webflow ||= [];
 window.Webflow.push(() => {
-  const swipers = document.querySelectorAll('.swiper') as NodeListOf<HTMLElement>;
+  const swipers = document.querySelectorAll(
+    '.instructions-swiper_component'
+  ) as NodeListOf<HTMLElement>;
 
   swipers.forEach((swiper: HTMLElement) => {
-    new Swiper(swiper, {
+    const swiperEl = swiper.querySelector('.swiper') as HTMLElement;
+    const arrowPrev = swiper.querySelector('.swiper_arrow.is-prev') as HTMLElement;
+    const arrowNext = swiper.querySelector('.swiper_arrow.is-next') as HTMLElement;
+
+    if (!arrowPrev || !arrowNext || !swiperEl) return;
+
+    new Swiper(swiperEl, {
+      modules: [Navigation],
       // Default parameters
       slidesPerView: 3,
       slidesPerGroup: 1,
       spaceBetween: 24,
+
       // Responsive breakpoints
       breakpoints: {
         // when window width is >= 240px
@@ -27,6 +38,11 @@ window.Webflow.push(() => {
           slidesPerView: 3,
           spaceBetween: 24,
         },
+      },
+      navigation: {
+        enabled: true,
+        nextEl: arrowNext,
+        prevEl: arrowPrev,
       },
     });
   });

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../bin/live-reload.js", "../../../src/features/print/index.ts"],
+  "sourcesContent": ["new EventSource(`${SERVE_ORIGIN}/esbuild`).addEventListener('change', () => location.reload());\n", "window.Webflow ||= [];\nwindow.Webflow.push(() => {\n  const printContents = document.querySelector('[print-element=\"content\"]') as HTMLElement;\n  if (!printContents) return;\n\n  console.log(printContents);\n\n  const printTriggers = document.querySelectorAll('[print-element=\"trigger\"]');\n  if (!printTriggers.length) return;\n\n  const triggerPrint = () => print(printContents);\n\n  printTriggers.forEach((trigger) => trigger.addEventListener('click', () => window.print()));\n\n  window.print();\n});\n\nfunction print(content: HTMLElement) {\n  const originalContents = document.body.innerHTML;\n  const printContents = content.innerHTML;\n  document.body.innerHTML = printContents;\n  window.print();\n\n  document.body.innerHTML = originalContents;\n}\n"],
+  "mappings": ";;;AAAA,MAAI,YAAY,GAAG,uBAAY,UAAU,EAAE,iBAAiB,UAAU,MAAM,SAAS,OAAO,CAAC;;;ACA7F,SAAO,YAAY,CAAC;AACpB,SAAO,QAAQ,KAAK,MAAM;AACxB,UAAM,gBAAgB,SAAS,cAAc,2BAA2B;AACxE,QAAI,CAAC;AAAe;AAEpB,YAAQ,IAAI,aAAa;AAEzB,UAAM,gBAAgB,SAAS,iBAAiB,2BAA2B;AAC3E,QAAI,CAAC,cAAc;AAAQ;AAE3B,UAAM,eAAe,MAAM,MAAM,aAAa;AAE9C,kBAAc,QAAQ,CAAC,YAAY,QAAQ,iBAAiB,SAAS,MAAM,OAAO,MAAM,CAAC,CAAC;AAE1F,WAAO,MAAM;AAAA,EACf,CAAC;AAED,WAAS,MAAM,SAAsB;AACnC,UAAM,mBAAmB,SAAS,KAAK;AACvC,UAAM,gBAAgB,QAAQ;AAC9B,aAAS,KAAK,YAAY;AAC1B,WAAO,MAAM;AAEb,aAAS,KAAK,YAAY;AAAA,EAC5B;",
+  "names": []
+}
