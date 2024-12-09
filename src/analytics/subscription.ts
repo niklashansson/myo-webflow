@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 import type { GetCurrentMemberPayload } from '@memberstack/dom';
 
 // @ts-expect-error "Data Layer"
@@ -25,19 +24,18 @@ function init() {
       plan.active &&
       plan.payment?.priceId === priceId &&
       plan.payment.status === 'PAID' &&
-      !plan.payment.cancelAtDate &&
-      plan?.payment?.lastBillingDate &&
-      verifyPlan(plan?.payment?.lastBillingDate as unknown as string)
+      !plan.payment.cancelAtDate
   );
+
   if (!successPlan) return redirect();
 
   pushToDataLayer(memberData, successPlan.planId);
 }
 
-function verifyPlan(timestamp: string) {
-  const currentTimestamp = Math.floor(Date.now() / 1000); // Current timestamp in seconds
-  return currentTimestamp - Number(timestamp) < 0.5 * 60;
-}
+// function verifyPlan(timestamp: string) {
+//   const currentTimestamp = Math.floor(Date.now() / 1000); // Current timestamp in seconds
+//   return currentTimestamp - Number(timestamp) < 0.5 * 60;
+// }
 
 function redirect() {
   window.location.href = '/';
@@ -66,7 +64,7 @@ function pushToDataLayer(
   },
   planId: string
 ) {
-  const event = JSON.stringify({
+  const event = {
     event: 'myo-new-subscription',
     newInstructionsSubscription: {
       memberEmail: memberData.auth.email,
@@ -77,7 +75,7 @@ function pushToDataLayer(
       stripeCustomerId: memberData.stripeCustomerId,
       planId,
     },
-  });
+  };
 
   // @ts-expect-error "data layer"
   window.dataLayer.push(event);
