@@ -23,9 +23,9 @@ window.Webflow.push(async () => {
 
     // plan not active
     if (!active) return;
-
     // plan active
     const planEl = document.querySelector(`[memberstack-plan-id=${planId}]`);
+
     if (!planEl) return;
 
     // plan cancelled

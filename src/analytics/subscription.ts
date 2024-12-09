@@ -1,46 +1,72 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
+import type { GetCurrentMemberPayload } from '@memberstack/dom';
+
 // @ts-expect-error "Data Layer"
 window.dataLayer = window.dataLayer || [];
 window.Webflow ||= [];
 
-window.Webflow.push(async () => {
-  // Check url
-  const params = new URLSearchParams(window.location.href);
-  const fromCheckout = params.get('fromCheckout');
-  const msPriceId = params.get('msPriceId');
-  if (!fromCheckout || !msPriceId) return;
-
-  // Fetch the member's planConnections from local storage
-  const memberDataFromLocalStorage = localStorage.getItem('_ms-mem');
-  if (!memberDataFromLocalStorage) return;
-
-  const memberData = JSON.parse(memberDataFromLocalStorage);
-  if (!memberData) return;
-
-  const { planConnections } = memberData;
-  if (!planConnections.length) return;
-
-  const confirmedPlan = planConnections.find((p: any) => validatePlan(p, msPriceId));
-  if (confirmedPlan) {
-    pushToDataLayer(memberData, confirmedPlan.planId);
-  }
+window.Webflow.push(() => {
+  window.addEventListener('load', init);
 });
 
-function validatePlan(plan: any, urlPriceId: string) {
-  if (!plan.payment) return;
+function init() {
+  const { priceId, isFromCheckout } = parseUrl();
+  if (!priceId || !isFromCheckout) {
+    redirect();
+    return;
+  }
 
-  const isActive = plan.active;
-  const isValidPriceId = plan.payment.priceId === urlPriceId;
-  const isPaid = plan.payment.status === 'PAID';
-  const isNotCancelled = !plan.payment.cancelAtDate;
-  // const isConfirmedRecently = isRecentPlan(plan.payment.lastBillingDate);
+  const memberData = getMemberData() as GetCurrentMemberPayload['data'] | undefined;
+  if (!memberData) return redirect();
 
-  return isActive && isValidPriceId && isPaid && isNotCancelled;
+  const successPlan = memberData.planConnections.find(
+    (plan) =>
+      plan.active &&
+      plan.payment?.priceId === priceId &&
+      plan.payment.status === 'PAID' &&
+      !plan.payment.cancelAtDate &&
+      plan?.payment?.lastBillingDate &&
+      verifyPlan(plan?.payment?.lastBillingDate as unknown as string)
+  );
+  if (!successPlan) return redirect();
+
+  pushToDataLayer(memberData, successPlan.planId);
+}
+
+function verifyPlan(timestamp: string) {
+  const currentTimestamp = Math.floor(Date.now() / 1000); // Current timestamp in seconds
+  return currentTimestamp - Number(timestamp) < 0.5 * 60;
+}
+
+function redirect() {
+  window.location.href = '/';
+}
+
+function parseUrl() {
+  const url = new URL(window.location.href);
+
+  const isFromCheckout = url.searchParams.get('fromCheckout');
+  const priceId = url.searchParams.get('msPriceId');
+  return {
+    priceId,
+    isFromCheckout,
+  };
+}
+
+function getMemberData() {
+  const data = localStorage.getItem('_ms-mem');
+  return data ? JSON.parse(data) : undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
-async function pushToDataLayer(memberData: any, planId: string) {
-  const event = {
+function pushToDataLayer(
+  memberData: GetCurrentMemberPayload['data'] & {
+    customFields: { ['first-name']?: string; ['last-name']?: string; ['location']?: string };
+  },
+  planId: string
+) {
+  const event = JSON.stringify({
     event: 'myo-new-subscription',
     newInstructionsSubscription: {
       memberEmail: memberData.auth.email,
@@ -51,20 +77,10 @@ async function pushToDataLayer(memberData: any, planId: string) {
       stripeCustomerId: memberData.stripeCustomerId,
       planId,
     },
-  };
+  });
 
   // @ts-expect-error "data layer"
   window.dataLayer.push(event);
-  console.log('Pushed to data layer!');
+
+  return event;
 }
-
-// function isRecentPlan(timestamp: number) {
-//   // Get the current time in seconds since the epoch
-//   const currentTime = Math.floor(Date.now() / 1000);
-
-//   // Calculate the difference in seconds
-//   const timeDifference = currentTime - timestamp;
-
-//   // Check if the difference is less than or equal to 5 minutes (300 seconds)
-//   return timeDifference <= 900;
-// }
