@@ -4,11 +4,8 @@ import delay from 'delay';
 
 // @ts-expect-error "Data Layer"
 window.dataLayer = window.dataLayer || [];
-window.Webflow ||= [];
 
-window.Webflow.push(() => {
-  window.addEventListener('load', init);
-});
+window.addEventListener('load', init);
 
 async function init() {
   await delay(1000);
