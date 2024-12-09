@@ -78,7 +78,7 @@ function pushToDataLayer(
       planId,
     },
   };
-
+  console.log(event);
   // @ts-expect-error "data layer"
   window.dataLayer.push(event);
 
