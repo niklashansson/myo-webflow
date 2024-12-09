@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { GetCurrentMemberPayload } from '@memberstack/dom';
+import delay from 'delay';
 
 // @ts-expect-error "Data Layer"
 window.dataLayer = window.dataLayer || [];
@@ -9,7 +10,8 @@ window.Webflow.push(() => {
   window.addEventListener('load', init);
 });
 
-function init() {
+async function init() {
+  await delay(1000);
   const { priceId, isFromCheckout } = parseUrl();
   if (!priceId || !isFromCheckout) {
     redirect();
