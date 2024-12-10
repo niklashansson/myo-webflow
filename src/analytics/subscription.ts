@@ -2,9 +2,6 @@
 import type { GetCurrentMemberPayload } from '@memberstack/dom';
 import delay from 'delay';
 
-// @ts-expect-error "Data Layer"
-window.dataLayer = window.dataLayer || [];
-
 window.addEventListener('load', init);
 
 async function init() {
