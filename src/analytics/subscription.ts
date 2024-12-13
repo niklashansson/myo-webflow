@@ -71,8 +71,8 @@ function pushToDataLayer(
       stripeCustomerId: memberData.stripeCustomerId,
       planId,
     },
+    data: memberData,
   };
-  console.log(event);
   // @ts-expect-error "data layer"
   window.dataLayer.push(event);
 
