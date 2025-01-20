@@ -6,6 +6,7 @@ window.Webflow.push(async () => {
   const plans = [
     { planId: 'pln_myo-membership-monthly-c6da07cx', title: 'MYO Medlemskap - Månadsvis' },
     { planId: 'pln_myo-membership-yearly-a66l0ayp', title: 'MYO Medlemskap - Årsvis' },
+    { planId: 'pln_myo-medlemskap-kampanj-un900if3', title: 'MYO Medlemskap - 3 Months' },
   ];
 
   // @ts-expect-error "memberstack"
