@@ -17,6 +17,7 @@ const ENTRY_POINTS = [
   'src/features/dialog/index.ts',
   'src/features/instructions/index.ts',
   'src/analytics/subscription.ts',
+  'src/features/swiper/instruction-gallery.ts',
 ];
 
 // Config dev serving
